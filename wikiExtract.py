@@ -58,11 +58,15 @@ log Talk Remov remov message delet website am"""
 edW = z.sub(' ',edW).split(' ')
 p_m = [re.compile(w) for w in edW]
 
+edWK = """위키 백과 문서 편집 작성 관리자 사용자 니다"""
+edWK = z.sub(' ',edWK).split(' ')
+p_m2 = [re.compile(w) for w in edWK]
 
-def read_wiki(args):
-    url = "https://dumps.wikimedia.org/enwiki/latest/"
+
+def read_wiki(args,lang):
+    url = "https://dumps.wikimedia.org/"+lang+"wiki/latest/"
     file = urllib.request.urlopen(url)
-    p = re.compile('.+enwiki-latest-pages-articles-multistream(?P<toExt>[0-9]{1,2}\.xml-p[0-9]+p[0-9]+\.bz2)\".+')
+    p = re.compile('.+'+lang+'wiki-latest-pages-articles-multistream(?P<toExt>[0-9]{1,2}\.xml-p[0-9]+p[0-9]+\.bz2)\".+')
     q = re.compile('(?P<indx>[0-9]+)\.xml.*')
 
     f_toEx = []
@@ -75,39 +79,37 @@ def read_wiki(args):
     if args.opt == 0:
         return random.sample(f_toEx, args.num)
     else:
-        print(args.indexes)
-        return [f for f in f_toEx if q.sub('\g<indx>',f) in args.indexes]
+        #print(args.articles)
+        return [f for f in f_toEx if q.sub('\g<indx>',f) in args.articles]
         
 def main(args):
     if not exists(args.path):
         os.makedirs(args.path)
-
+    lang = args.lang
+    if lang == 'ko':
+        p57 = re.compile('[가-힣\s]')
     #k = 2             #num of files to read
     step =1000
     fstep = 1000*10
-    path = args.path
-    srcpath = "enwiki-latest-pages-articles-multistream"
+    if args.path != '':
+        path = args.path
+    else:
+        path = "wikiE/" if lang =='en' else "wikiK"
+    srcpath = lang+"wiki-latest-pages-articles-multistream"
 
     txtX = []
     n_iter = 0*fstep #1
-    with open(path+'wiki_en'+str(n_iter//fstep)+'.txt','w') as f:
+    with open(path+'wiki_'+lang+str(n_iter//fstep)+'.txt','w') as f:
         f.write('')
 
-    wiF = read_wiki(args) #["16.xml-p18960153p20460152"]
+    wiF = read_wiki(args,lang) #["16.xml-p18960153p20460152"]
     print(f'wiF : {wiF}')
     #sys.exit()
     pppp = "{http://www.mediawiki.org/xml/export-0.10/}"
     txtX = []
 
     for iw,fw in enumerate(wiF):
-        #bz2.decompress(wget.download(url_f))
-
-        #X = ET.parse(srcpath+fw)
-        #bz2.open(filename, mode='rb'
-        X = ET.parse(bz2.open(wget.download("https://dumps.wikimedia.org/enwiki/latest/"+srcpath+fw), mode='rb'))
-        
-        #X = ET.parse(bz2.decompress(wget.download("https://dumps.wikimedia.org/enwiki/latest/"+srcpath+fw)))
-        
+        X = ET.parse(bz2.open(wget.download("https://dumps.wikimedia.org/"+lang+"wiki/latest/"+srcpath+fw), mode='rb'))    
         print("start X")
         
         root = X.getroot()
@@ -139,18 +141,15 @@ def main(args):
                         for x in s:
                             if (p0.match(x) is None and len(x)>200 and p29.search(x) is None and
                                 p37.search(x) is None and
-                                sum([1 if pp.search(x[:300]) is not None else 0 for pp in p_m]) <3):
-
+                                sum([1 if pp.search(x[:300 if lang == 'en' else 200]) is not None else 0 for pp in p_m]) <3):
+                                
                                 xx = [s for s in ('\n'+z.sub(' ',p41.sub('\g<t41a>.Ħ\g<t41b>',
                                                     p36.sub('',p35.sub('\g<t35>Ħ',
                                                     p34.sub('\g<t34>ħ ',x)))))
                                                     .strip()).split('Ħ') 
-                                        if len(s)<500 and p39.search(s) is None and  
-                                                p53.search(s) is None and p43.search(s) is not None]                          
+                                        if (len(s)<500 if lang == 'en' else 350) and p39.search(s) is None and  
+                                                p53.search(s) is None and p43.search(s) is not None]
                                 
-
-                                #print("starting xx")
-                                #print(xx,'\n')
                                 xx = [s for s in xx if len(p57.findall(s[:100]))/len(s[:100]) >0.7]
                                 #print("second starting xx")
                                 #print(xx,'\n')
@@ -175,25 +174,26 @@ def main(args):
 
             if n_iter % step == 0:
                 #with open('wiki_en.txt','a') as f:
-                with open(path+'wiki_en'+str(n_iter//fstep)+'.txt','a') as f:
+                with open(path+'wiki_'+lang+str(n_iter//fstep)+'.txt','a') as f:
                     f.write('\n'.join(txtX)+'\n')
 
                 txtX = [] 
 
                 if n_iter % fstep == 0:
-                    with open(path+'wiki_en'+str(n_iter//fstep)+'.txt','w') as f:
+                    with open(path+'wiki_'+lang+str(n_iter//fstep)+'.txt','w') as f:
                         f.write('')
 
-    with open(path+'wiki_en'+str(n_iter//fstep)+'.txt','a') as f:
-        f.write('\n'.join(txtX))  
+    with open(path+'wiki_'+lang+str(n_iter//fstep)+'.txt','a') as f:
+        f.write('\n'.join(txtX))
 
 if  __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='program to extract sentences from Wikipedia'
     )
+    parser.add_argument('--lang', default = 'ko', help="language,  'ko': korean, 'en': english")
     parser.add_argument('--opt', type=int, default = 0, help='from what index,  0: random, 1: by indexes')
     parser.add_argument('--num', type=int, default = 2, help='num of files to download')
-    parser.add_argument('--indexes', nargs="+", default = [3], help='indexes to download')
-    parser.add_argument('--path', default= 'wikiE/', help='directory to write output')
+    parser.add_argument('--articles', nargs="+", default = [3], help='article group ids to download')
+    parser.add_argument('--path', default= '', help='directory to write output')
     args = parser.parse_args()
     main(args)
