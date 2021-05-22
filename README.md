@@ -1,6 +1,7 @@
 # wikiExtract
 
 Extract sentences from wikipedia (from https://dumps.wikimedia.org/enwiki/latest/)
+if wget module is not installed => pip3 install wget
 
 ### use cases
   python3 wikiEnExtract.py --lang='en' --opt=0 --num=2     
