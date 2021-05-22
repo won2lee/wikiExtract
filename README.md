@@ -9,6 +9,7 @@ Extract sentences from wikipedia (from https://dumps.wikimedia.org/enwiki/latest
   python3 wikiEnExtract.py --opt=1 --indexes 3 10 15     
   ........ read index 3,10,15 (can be more than 3 files <= several files by one index) 
 
+  Extracted sentences are stored in folder wikiE/
 
 
 ### 한국어 위키
@@ -20,3 +21,5 @@ Extract sentences from wikipedia (from https://dumps.wikimedia.org/enwiki/latest
 
   python3 wikiKoExtract.py --opt=1 --indexes 3 4  
   ........ 인덱스(3,4)를 지정하는 경우
+ 
+  추출된 결과는 wikiK/ 폴더에 저장
