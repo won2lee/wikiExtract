@@ -4,10 +4,10 @@ Extract sentences from wikipedia (from https://dumps.wikimedia.org/enwiki/latest
 
 ### use cases
   python3 wikiEnExtract.py --opt=0 --num=2     
-  ........ read 2(num=2) file selected randomly(opt=0) 
+  ........ read 2(num=2) files selected randomly(opt=0) 
 
   python3 wikiEnExtract.py --opt=1 --indexes 3 10 15     
-  ........ read index 3,10,15 file (can be more than 3 files <= several files in one index) 
+  ........ read index 3,10,15 (can be more than 3 files <= several files by one index) 
 
 
 
