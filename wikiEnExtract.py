@@ -194,6 +194,6 @@ if  __name__ == "__main__":
     parser.add_argument('--opt', type=int, default = 0, help='from what index,  0: random, 1: by indexes')
     parser.add_argument('--num', type=int, default = 2, help='num of files to download')
     parser.add_argument('--indexes', nargs="+", default = [3], help='indexes to download')
-    parser.add_argument('--path', default= 'wikiE', help='directory to write output')
+    parser.add_argument('--path', default= 'wikiE/', help='directory to write output')
     args = parser.parse_args()
     main(args)
