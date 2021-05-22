@@ -48,7 +48,7 @@ p49 = re.compile('https*\:[^\s]+')
 p51 = re.compile('(\(\s*\,[^\)]*\)|\([^\,]*\,\s*\)|\(\s*\))')
 p53 = re.compile('[^\s]{30,}')
 p55 = re.compile('File\:')
-p57 = re.compile('[a-zA-Z\s]')
+
 
 z = re.compile('\s+')
 
@@ -83,18 +83,17 @@ def read_wiki(args,lang):
         return [f for f in f_toEx if q.sub('\g<indx>',f) in args.articles]
         
 def main(args):
-    if not exists(args.path):
-        os.makedirs(args.path)
-    lang = args.lang
-    if lang == 'ko':
-        p57 = re.compile('[가-힣\s]')
+    lang = args.lang  
+    p57 = re.compile('[가-힣\s]') if lang == 'ko' else re.compile('[a-zA-Z\s]')
     #k = 2             #num of files to read
     step =1000
     fstep = 1000*10
     if args.path != '':
         path = args.path
     else:
-        path = "wikiE/" if lang =='en' else "wikiK"
+        path = "wikiE/" if lang =='en' else "wikiK/"
+    if path != '' and not exists(path):
+        os.makedirs(path)
     srcpath = lang+"wiki-latest-pages-articles-multistream"
 
     txtX = []
@@ -190,7 +189,7 @@ if  __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='program to extract sentences from Wikipedia'
     )
-    parser.add_argument('--lang', default = 'ko', help="language,  'ko': korean, 'en': english")
+    parser.add_argument('--lang', type=str, default = 'ko', help="language,  'ko': korean, 'en': english")
     parser.add_argument('--opt', type=int, default = 0, help='from what index,  0: random, 1: by indexes')
     parser.add_argument('--num', type=int, default = 2, help='num of files to download')
     parser.add_argument('--articles', nargs="+", default = [3], help='article group ids to download')
